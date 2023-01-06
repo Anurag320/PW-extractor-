@@ -21,13 +21,6 @@ bot = Client(
     api_hash=os.environ.get("API_HASH")
 )
 
-logger = logging.getLogger()
-thumb = os.environ.get("THUMB")
-if thumb.startswith("http://") or thumb.startswith("https://"):
-    getstatusoutput(f"wget '{thumb}' -O 'thumb.jpg'")
-    thumb = "thumb.jpg"
-
-
 @bot.on_message(filters.command(["start"]))
 async def start(bot, update):
        await update.reply_text("Hi i am **physics wallah Downloader**.\n\n"
