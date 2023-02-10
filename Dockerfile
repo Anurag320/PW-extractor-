@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM python:3.10.0-slim-buster
 
 RUN apt update && apt upgrade -y
 RUN apt install git curl python3-pip -y
