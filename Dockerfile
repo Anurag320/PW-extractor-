@@ -1,10 +1,13 @@
 FROM python:3.10.0-slim-buster
 
-RUN apt update && apt upgrade -y
-RUN apt install git curl python3-pip -y
-RUN pip3 install -U pip
-RUN mkdir /app/
-WORKDIR /app/
-COPY . /app/
-RUN pip3 install -U -r requirements.txt
-CMD python3 main.py
+WORKDIR .
+
+RUN apt -qq update && apt -qq install -y git wget pv jq python3-dev ffmpeg mediainfo
+
+COPY . .
+
+RUN pip3 install -r requirements.txt
+
+RUN apt install ffmpeg
+
+CMD ["python", "./main.py"]
