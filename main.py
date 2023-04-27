@@ -76,41 +76,87 @@ async def account_login(bot: Client, m: Message):
        'programId': '5f476e70a64b4a00ddd81379',
        'ut': '1652675230446', 
     }
-    await editable.edit("**You have these Batches :-\n\nBatch ID : Batch Name**")
-    response = requests.get('https://api.penpencil.xyz/v3/batches/my-batches', params=params, headers=headers).json()["data"]
+    await m.reply_text("**You have these Batches :-\n\nBatch ID : Batch Name**")
+    aa=''
+    response = requests.get('https://api.penpencil.co/v3/batches/my-batches', params=params, headers=headers).json()["data"]
     for data in response:
-        #batch=(data["name"])
-        #batchId=(data["_id"])
-        aa=f"```{data['name']}```  :  ```{data['_id']}\n```"
-        await m.reply_text(aa)
+        batch_name = data['name']
+        batch_id = data['_id']
+        aa = aa + f'**{batch_name}**  :  ```{batch_id}```\n\n'
+    await m.reply_text(aa)
     editable1= await m.reply_text("**Now send the Batch ID to Download**")
     input3 = message = await bot.listen(editable.chat.id)
     raw_text3 = input3.text
-    response2 = requests.get(f'https://api.penpencil.xyz/v3/batches/{raw_text3}/details', headers=headers).json()["data"]["subjects"]
-    await editable1.edit("subject : subjectId")
+    response2 = requests.get(f'https://api.penpencil.co/v3/batches/{raw_text3}/details', headers=headers).json()["data"]["subjects"]
+    await m.reply_text("Subject : Subject_Id")
+    bb= ''
     for data in response2:
-       #topic=(data["subject"])
-       #topic_id=(data["_id"])
-        bb=f"```{data['subject']}```  :  ```{data['_id']}\n```"
-        await m.reply_text(bb)
+        subject_name = data['subject']
+        subject_id = data['_id']
+        bb = bb  + f'**{subject_name}**  :  ```{subject_id}```\n\n'
+    await m.reply_text(bb)
     editable2= await m.reply_text("**Now send the subject ID to Download**")
     input4 = message = await bot.listen(editable.chat.id)
     raw_text4 = input4.text
-    for i in range(1,4): 
-      params1 = {
-        'page': '{i}',
+    await m.reply_text('**Now Send Content Type you want to extract.**\n```DppNotes```|```videos```|```notes```')
+    input5 = message = await bot.listen(editable.chat.id)
+    raw_text5 = input5.text
+    xx =await m.reply_text("Genrating Course txt in this id")
+    to_write = ''
+    for z in range(1,15): # max 15 pages
+        print(z) 
+        params1 = {
+        'page': f'{z}',
         'tag': '',
-        'contentType': 'notes-videos',
-        'ut': '',
-    }
-    response3 = requests.get(f'https://api.penpencil.xyz/v2/batches/{raw_text3}/subject/{raw_text4}/contents', params=params1, headers=headers).json()["data"]
-    #await m.reply_text(response3)
-    for data in response3:
-       #class_title=(data["topic"])
-       #class_url=(data["url"])
-        cc=f"```{data['topic']}```  :  ```{data['url']}\n```"
-        await m.reply_text(cc)
-bot.run()
+        'contentType': f'{raw_text5}',
+        }
+        
+        response3 = requests.get(f'https://api.penpencil.co/v2/batches/{raw_text3}/subject/{raw_text4}/contents', params=params1, headers=headers).json()["data"]
+        #with open(f"1pwnotes.json", "w", encoding="utf-8") as f:
+        #    f.write(f'{response3}')
+        #    print(1)
+        #    sys.exit(1)
+        
+        if raw_text5 == 'videos':
+            for data in response3:
+                try:      
+                    url = f"https://d26g5bnklkwsh4.cloudfront.net/{data['url'].split('/')[-2]}/hls/720/main.m3u8" if raw_text5 == "videos" else f"{data['baseUrl']}{data['key']}"
+                    topic = data['topic']
+                    #print(url)
+                    write = f"{topic} {url}\n"
+                    to_write = to_write + write
+                except:
+                    pass
+        else: #for notes + dpps
+            for i in range(len(response3)):
+                #print(response3)
+                #print(data1)
+                try:
+                    print(f'{i} {z} ')
+                    c=response3[i]
+                    b=c['homeworkIds'][0]
+                    a = b['attachmentIds'][0]
+                
+                    #print(f'{b}')
+                    name = response3[i]['homeworkIds'][0]['topic'].replace('|',' ').replace(':',' ')
+                    #name = a['name']
+                    url = a['baseUrl'] + a['key']
+                    write = f"{name} {url}\n"
+                    to_write = to_write + write
+                except:
+                    pass
+
+    with open(f"{raw_text5} {raw_text4}.txt", "w", encoding="utf-8") as f:
+        f.write(to_write)
+        print(1)
+    with open(f"{raw_text5} {raw_text4}.txt", "rb") as f:   
+       # print(3)  
+        await asyncio.sleep(5)
+        doc = await message.reply_document(document=f, caption="Here is your txt file.")
+        await xx.delete(True)
+       # print(2)
+    await bot.forward_messages(acces,doc.chat.id,doc.message_id)            
+
 
         
 
