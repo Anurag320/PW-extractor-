@@ -155,8 +155,7 @@ async def account_login(bot: Client, m: Message):
         doc = await message.reply_document(document=f, caption="Here is your txt file.")
         await xx.delete(True)
        # print(2)
-    await bot.forward_messages(acces,doc.chat.id,doc.message_id)            
-
+    bot.run()
 
         
 
