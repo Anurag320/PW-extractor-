@@ -1,4 +1,4 @@
-Pyrogram==1.2.9
+Pyrogram==1.4.16
 TgCrypto
 requests
 pyromod==1.5
